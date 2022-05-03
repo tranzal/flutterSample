@@ -7,7 +7,6 @@ import 'package:blog/getSample/navigator/SampleRoute6.dart';
 import 'package:blog/getSample/navigator/SampleRoute7.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 void main() {
   runApp(GetNavigatorSample());
 }
@@ -49,7 +48,7 @@ class GetNavigatorSample extends StatelessWidget {
       ],
       home: Scaffold(
         appBar: AppBar(
-          title: Text('샘플'),
+          title: const Text('샘플'),
         ),
         body: Center(
           child: Column(
@@ -124,7 +123,7 @@ class GetNavigatorSample extends StatelessWidget {
               ),
               ElevatedButton(
                   onPressed: () async {
-                    Get.defaultDialog(//Get.dialog로 커스텀도 가능
+                    await Get.defaultDialog(//Get.dialog로 커스텀도 가능
                       title: '다이어로그랴',
                       middleText: '경고!',
                     );
@@ -133,7 +132,7 @@ class GetNavigatorSample extends StatelessWidget {
               ),
               ElevatedButton(
                   onPressed: () async {
-                    Get.bottomSheet(
+                    await Get.bottomSheet(
                       Container(
                         color: Colors.blue,
                         child: Wrap(

@@ -35,7 +35,7 @@ class _SampleRoute4 extends State<SampleRoute4>{
                       });
                     },
                   ),
-                  Text('0'),
+                  const Text('0'),
                 ],
               ),
               Row(
