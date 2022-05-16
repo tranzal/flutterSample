@@ -67,6 +67,15 @@ dependencies:
   #권한 요청
   permission_handler: ^9.2.0
 
+  #이미지 조작
+  extended_image: ^6.2.0
+
+  #아이콘에 숫자오르는거
+  badges: ^2.0.2
+
+  #아이콘
+  font_awesome_flutter: ^10.1.0
+
 
 
 dev_dependencies:
