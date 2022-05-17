@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 
+
+//https://pub.dev/documentation/intl/latest/intl/DateFormat-class.html 데이트 포맷 상세설명
 class DateFormatEx extends StatelessWidget {
 
   @override

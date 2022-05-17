@@ -9,7 +9,7 @@ class FontAwesomeIconEx extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('글자 오버플로우'),
+          title: const Text('아이콘 많이'),
         ),
         body: const Center(
           child: FaIcon(FontAwesomeIcons.arrowsLeftRightToLine),

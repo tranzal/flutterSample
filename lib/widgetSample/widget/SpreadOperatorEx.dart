@@ -8,7 +8,7 @@ class SpreadOperatorEx extends StatefulWidget {
 
 class _SpreadOperatorEx extends State<SpreadOperatorEx> {
 
-  final bool showItem = false;
+  final bool showItem = true;
 
   @override
   Widget build(BuildContext context) {
