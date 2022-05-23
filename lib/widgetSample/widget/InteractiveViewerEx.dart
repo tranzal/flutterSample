@@ -15,9 +15,15 @@ class InteractiveViewerEx extends StatelessWidget {
         children: <Widget>[
           Expanded(
               child: InteractiveViewer(
-                boundaryMargin: const EdgeInsets.all(100),
-                child: Image.asset('assets/ic_launcher.png'),
-
+                boundaryMargin: const EdgeInsets.all(20),
+                maxScale: 2.5,
+                minScale: 1.0,
+                child: Container(
+                  width: 100,
+                  height: 50,
+                  color: Colors.black,
+                  child: Image.asset('assets/ic_launcher.png',),
+                ),
               )
           )
         ],
