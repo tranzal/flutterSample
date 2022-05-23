@@ -14,6 +14,7 @@ import 'package:blog/widgetSample/widget/HeroEx.dart';
 import 'package:blog/widgetSample/widget/IfNullOperationEx.dart';
 import 'package:blog/widgetSample/widget/IgnorePointerEx.dart';
 import 'package:blog/widgetSample/widget/InkWellEx.dart';
+import 'package:blog/widgetSample/widget/InteractiveViewerEx.dart';
 import 'package:blog/widgetSample/widget/ListWidget.dart';
 import 'package:blog/widgetSample/widget/PositionedTransitionEx.dart';
 import 'package:blog/widgetSample/widget/RowScrollEx.dart';
@@ -90,6 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
       WidgetList(name: '클릭 막기', widget: IgnorePointerEx()),
       WidgetList(name: '이미지 확대', widget: HeroEx()),
       WidgetList(name: '이미지 이동', widget: PositionedTransitionEx()),
+      WidgetList(name: '클릭 했을때 이미지 같이 움직임', widget: InteractiveViewerEx()),
 
     ];
 

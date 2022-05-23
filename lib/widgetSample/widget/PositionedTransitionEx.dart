@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+const double smallLogo = 100;
+const double bigLogo = 200;
+
 class PositionedTransitionEx extends StatefulWidget {
   PositionedTransitionEx({Key? key}) : super(key: key);
 
@@ -9,12 +12,10 @@ class PositionedTransitionEx extends StatefulWidget {
 
 class _PositionedTransitionExState extends State<PositionedTransitionEx> with TickerProviderStateMixin {
 
-  late final AnimationController _container = AnimationController(
-      duration: const Duration(seconds: 1),
+  late final AnimationController _controller = AnimationController(
+      duration: const Duration(seconds: 2),
     vsync: this
   )..repeat(reverse: true);
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -24,17 +25,24 @@ class _PositionedTransitionExState extends State<PositionedTransitionEx> with Ti
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final Size biggest = constraints.biggest;
+          final biggest = constraints.biggest;
           
-          final Animation<RelativeRect> _animation = RelativeRectTween(
-            begin: RelativeRect.fromSize(Rect.fromLTRB(0, 0, smallLogo, smallLogo), biggest),
-          );
+          final _animation = RelativeRectTween(
+            begin: RelativeRect.fromSize(const Rect.fromLTRB(0, 0, smallLogo, smallLogo), biggest),
+            end: RelativeRect.fromSize(
+                Rect.fromLTWH(biggest.width - bigLogo, biggest.height - bigLogo, bigLogo, bigLogo),
+                biggest
+            )
+          ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticInOut));
           
           return Stack(
             children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: Image.asset('assets/ic_launcher.png'),
+              PositionedTransition(
+                rect: _animation,
+                child: Container(
+                  color: Colors.black,
+                  child: Image.asset('assets/ic_launcher.png',),
+                ),
               )
             ],
           );
