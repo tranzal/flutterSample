@@ -64,6 +64,11 @@ dependencies:
   #아이폰처럼 반짝이는 그거 할때
   shimmer: ^2.0.0
 
+  #sms 읽기
+  flutter_sms_inbox: ^1.0.1
+
+  #클립보드 사용
+  clipboard: ^0.1.3
 
 
 dev_dependencies:
