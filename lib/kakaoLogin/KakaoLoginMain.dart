@@ -1,0 +1,70 @@
+import 'package:blog/kakaoLogin/model/MainViewModel.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+
+import 'kakao_login.dart';
+
+const KAKAO_APP_KEY = '1df8e5bb209be69b57c45952cb55a19a';
+void main() {
+  KakaoSdk.init(nativeAppKey: '${KAKAO_APP_KEY}');
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GetMaterialApp(
+      title: '카카오 로그인',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  final viewModel = MainViewModel(KakaoLogin());
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('카카오 로그인'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Image.network(viewModel.user?.kakaoAccount?.profile?.profileImageUrl ?? '이미지 없음'),
+            Text('${viewModel.isLogined}'),
+            ElevatedButton(
+                onPressed: () async {
+                  await viewModel.login();
+                  setState((){});
+                },
+                child: const Text('Login')
+            ),
+            ElevatedButton(
+                onPressed: () async {
+                  await viewModel.logout();
+                  setState((){});
+                },
+                child: const Text('Logout')
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
