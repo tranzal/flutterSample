@@ -44,3 +44,8 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+
+google-services.json
+firebase_options.dart
+/functions/blog-2b4fb-firebase-adminsdk-4ugv6-b17dee82a1.json

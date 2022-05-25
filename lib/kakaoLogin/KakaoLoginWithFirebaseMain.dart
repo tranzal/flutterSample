@@ -10,6 +10,10 @@ import 'kakao_login.dart';
 
 const KAKAO_APP_KEY = '1df8e5bb209be69b57c45952cb55a19a';
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   kakao.KakaoSdk.init(nativeAppKey: '${KAKAO_APP_KEY}');
   runApp(const MyApp());
 }
@@ -46,26 +50,36 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text('카카오 로그인'),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Image.network(viewModel.user?.kakaoAccount?.profile?.profileImageUrl ?? '이미지 없음'),
-            Text('${viewModel.isLogined}'),
-            ElevatedButton(
-                onPressed: () async {
-                  await viewModel.login();
-                  setState((){});
-                },
-                child: const Text('Login')
-            ),
-            ElevatedButton(
-                onPressed: () async {
-                  await viewModel.logout();
-                  setState((){});
-                },
-                child: const Text('Logout')
-            )
-          ],
+        child: StreamBuilder<User?>(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, snapshot) {
+            if(!snapshot.hasData){
+              return  ElevatedButton(
+                  onPressed: () async {
+                    await viewModel.login();
+                    setState((){});
+                  },
+                  child: const Text('Login')
+              );
+            } else {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Image.network(
+                      viewModel.user?.kakaoAccount?.profile?.profileImageUrl ??
+                          '이미지 없음'),
+                  Text('${viewModel.isLogined}'),
+                  ElevatedButton(
+                      onPressed: () async {
+                        await viewModel.logout();
+                        setState(() {});
+                      },
+                      child: const Text('Logout')
+                  )
+                ],
+              );
+            }
+          }
         ),
       ),
     );
