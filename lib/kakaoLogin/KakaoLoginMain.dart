@@ -8,7 +8,7 @@ import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart' as kakao;
 
 import 'kakao_login.dart';
 
-const KAKAO_APP_KEY = '1df8e5bb209be69b57c45952cb55a19a';
+const KAKAO_APP_KEY = '${KAKAO_APP_KEY}';
 void main() async {
   kakao.KakaoSdk.init(nativeAppKey: '${KAKAO_APP_KEY}');
   runApp(const MyApp());
