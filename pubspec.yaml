@@ -76,6 +76,10 @@ dependencies:
 
   #http통신
   http: ^0.13.4
+#  flutter_naver_map: ^0.10.5
+  #네이버 지도 연동
+  naver_map_plugin:
+    git: https://github.com/LBSTECH/naver_map_plugin.git
 
 
 dev_dependencies:
