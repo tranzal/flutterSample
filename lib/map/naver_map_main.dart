@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:naver_map_plugin/naver_map_plugin.dart';
+import 'package:vibration/vibration.dart';
 
 // https://api.ncloud-docs.com/docs/ai-naver-mapsgeocoding-geocode 참고
 //https://guide.ncloud-docs.com/docs/naveropenapiv3-maps-android-sdk-v3-1-download
@@ -21,36 +22,15 @@ class _MyAppState extends State<MyApp> {
   static const MODE_ADD = 0xF1;
   static const MODE_REMOVE = 0xF2;
   static const MODE_NONE = 0xF3;
-  int _currentMode = MODE_NONE;
-
+  int _currentMode = MODE_ADD;
+  Timer? _timer = null;
   Completer<NaverMapController> _controller = Completer();
   List<Marker> _markers = [];
 
   @override
   void initState() {
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   OverlayImage.fromAssetImage(
-    //     assetName: 'icon/marker.png',
-    //   ).then((image) {
-    //     setState(() {
-    //       _markers.add(Marker(
-    //           markerId: 'id',
-    //           position: const LatLng(37.563600, 126.962370),
-    //           captionText: "커스텀 아이콘",
-    //           captionColor: Colors.indigo,
-    //           captionTextSize: 20.0,
-    //           alpha: 0.8,
-    //           captionOffset: 30,
-    //           icon: image,
-    //           anchor: AnchorPoint(0.5, 1),
-    //           width: 45,
-    //           height: 45,
-    //           infoWindow: '인포 윈도우',
-    //           onMarkerTab: _onMarkerTap));
-    //     });
-    //   });
-    // });
     super.initState();
+
   }
 
   @override
@@ -136,7 +116,9 @@ class _MyAppState extends State<MyApp> {
 
           // none
           GestureDetector(
-            onTap: () => setState(() => _currentMode = MODE_NONE),
+            onTap: () => setState(() {
+              _currentMode = MODE_NONE;
+            }),
             child: Container(
               decoration: BoxDecoration(
                   color:
@@ -163,7 +145,12 @@ class _MyAppState extends State<MyApp> {
             onMapCreated: _onMapCreated,
             onMapTap: _onMapTap,
             markers: _markers,
-            initLocationTrackingMode: LocationTrackingMode.Follow,
+            initLocationTrackingMode: LocationTrackingMode.Face,
+            activeLayers: const [
+              MapLayer.LAYER_GROUP_TRANSIT
+            ],
+            locationButtonEnable: true,
+            onSymbolTap: _onSymbolTap,
           ),
         ],
       ),
@@ -172,6 +159,28 @@ class _MyAppState extends State<MyApp> {
 
   // ================== method ==========================
 
+  void _onSymbolTap(LatLng? latLng, String? name) async {
+    if (_currentMode == MODE_ADD) {
+      if(_markers.isEmpty){
+        _markers.add(Marker(
+          markerId: DateTime.now().toIso8601String(),
+          position: latLng,
+          infoWindow: name,
+          onMarkerTab: _onMarkerTap,
+        ));
+      }else if(_markers.length == 1) {
+        _markers[0] = Marker(
+          markerId: DateTime.now().toIso8601String(),
+          position: latLng,
+          infoWindow: name,
+          onMarkerTab: _onMarkerTap,
+        );
+      }
+      timerSetting(latLng!);
+      setState(() {});
+    }
+  }
+
   void _onMapCreated(NaverMapController controller) {
     _controller.complete(controller);
   }
@@ -179,9 +188,39 @@ class _MyAppState extends State<MyApp> {
   //좌표 계산 식 https://ko.wikipedia.org/wiki/%EC%A7%80%EB%A6%AC%EC%A2%8C%ED%91%9C_%EA%B1%B0%EB%A6%AC
   //좌표 <-> 도분초 https://injunech.tistory.com/294
   void _onMapTap(LatLng latLng) async {
+    if (_currentMode == MODE_ADD) {
+      if(_markers.isEmpty){
+        _markers.add(Marker(
+          markerId: DateTime.now().toIso8601String(),
+          position: latLng,
+          onMarkerTab: _onMarkerTap,
+        ));
+      }else if(_markers.length == 1) {
+        _markers[0] = Marker(
+          markerId: DateTime.now().toIso8601String(),
+          position: latLng,
+          onMarkerTab: _onMarkerTap,
+        );
+      }
+      timerSetting(latLng);
+      setState(() {});
+    }
+  }
+
+  void _onMarkerTap(Marker? marker, Map<String, int?> iconSize) {
+    int pos = _markers.indexWhere((m) => m.markerId == marker!.markerId);
+    setState(() {
+      _markers[pos].captionText = '선택됨';
+    });
+    if (_currentMode == MODE_REMOVE) {
+      setState(() {
+        _markers.removeWhere((m) => m.markerId == marker!.markerId);
+      });
+    }
+  }
+
+  Future<double> distanceResult(LatLng latLng) async {
     var deviceLocation = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-    debugPrint('경도 : ${latLng.longitude.toString()}');
-    debugPrint('위도 : ${latLng.latitude.toString()}');
 
     var deviceLongitudeDegree = (deviceLocation.longitude).toInt();
     var deviceLongitudeMinute = ((deviceLocation.longitude - deviceLongitudeDegree) * 60).toInt();
@@ -203,38 +242,22 @@ class _MyAppState extends State<MyApp> {
     var latitude = pow(((deviceLatitudeDegree - destinationLatitudeDegree).abs() * 111.3194 + (deviceLatitudeMinute - destinationLatitudeMinute).abs() * 1.8553 + (deviceLatitudeSecond - destinationLatitudeSecond).abs() * 0.0309), 2);
     var distance = sqrt(longitude + latitude);
 
-    debugPrint(distance.toString());
-
-    if (_currentMode == MODE_ADD) {
-      if(_markers.isEmpty){
-        _markers.add(Marker(
-          markerId: DateTime.now().toIso8601String(),
-          position: latLng,
-          infoWindow: '테스트',
-          onMarkerTab: _onMarkerTap,
-        ));
-      }else if(_markers.length == 1) {
-        _markers[0] = Marker(
-          markerId: DateTime.now().toIso8601String(),
-          position: latLng,
-          infoWindow: '테스트',
-          onMarkerTab: _onMarkerTap,
-        );
-      }
-      setState(() {});
-    }
+    return distance;
   }
 
-  void _onMarkerTap(Marker? marker, Map<String, int?> iconSize) {
-    int pos = _markers.indexWhere((m) => m.markerId == marker!.markerId);
+  void timerSetting(LatLng latLng){
+    if(_timer != null){
+      _timer?.cancel();
+    }
     setState(() {
-      _markers[pos].captionText = '선택됨';
-    });
-    if (_currentMode == MODE_REMOVE) {
-      setState(() {
-        _markers.removeWhere((m) => m.markerId == marker!.markerId);
+      _timer = Timer.periodic(const Duration(milliseconds: 1000), (timer) async {
+        var result = await distanceResult(latLng);
+        debugPrint(result.toString());
+        if(result < 0.25){
+          Vibration.vibrate(duration: 1000);
+          timer.cancel();
+        }
       });
-    }
+    });
   }
-
 }
