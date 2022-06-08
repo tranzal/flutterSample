@@ -84,6 +84,18 @@ dependencies:
   #디바이스 위치
   geolocator: ^8.2.1
 
+  #폰 진동낼수 있음
+  vibration: ^1.7.3
+
+  #일정 거리 내의 누가 있나 확인하는거
+  geofencing: ^0.1.0
+
+  #백그라운드 서비스 이용
+  flutter_background_service: ^2.1.2
+
+  #기기 정보
+  device_info_plus: ^3.2.4
+
 
 dev_dependencies:
   flutter_test:
