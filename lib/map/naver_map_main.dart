@@ -1,8 +1,13 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui';
 
+import 'package:blog/map/controller/timer_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:flutter_background_service_android/flutter_background_service_android.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:naver_map_plugin/naver_map_plugin.dart';
 import 'package:vibration/vibration.dart';
 
@@ -10,27 +15,103 @@ import 'package:vibration/vibration.dart';
 //https://guide.ncloud-docs.com/docs/naveropenapiv3-maps-android-sdk-v3-1-download
 // https://blog.naver.com/websearch/220482884843 위도 경도 계산
 
-void main() => runApp(MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeService();
+
+  runApp(MyApp());
+}
+
+Future<void> initializeService() async {
+  final service = FlutterBackgroundService();
+  await service.configure(
+    androidConfiguration: AndroidConfiguration(
+      // this will executed when app is in foreground or background in separated isolate
+      onStart: MyApp().timerSetting,
+
+      // auto start service
+      autoStart: false,
+      isForegroundMode: true,
+    ),
+    iosConfiguration: IosConfiguration(
+      // auto start service
+      autoStart: false,
+
+      // this will executed when app is in foreground in separated isolate
+      onForeground: MyApp().timerSetting,
+
+      // you have to enable background fetch capability on xcode project
+      onBackground: onIosBackground,
+    ),
+  );
+  await service.startService();
+}
+
+bool onIosBackground(ServiceInstance service) {
+  WidgetsFlutterBinding.ensureInitialized();
+  print('FLUTTER BACKGROUND FETCH');
+
+  return true;
+}
+
+
 
 class MyApp extends StatefulWidget {
+  final timerController = Get.put(TimerController());
 
   @override
   State<MyApp> createState() => _MyAppState();
+
+
+  void timerSetting(ServiceInstance service) {
+    DartPluginRegistrant.ensureInitialized();
+
+
+    if (service is AndroidServiceInstance) {
+      service.on('setAsForeground').listen((event) {
+        service.setAsForegroundService();
+      });
+
+      service.on('setAsBackground').listen((event) {
+        service.setAsBackgroundService();
+      });
+    }
+
+    service.on('stopService').listen((event) {
+      service.stopSelf();
+    });
+
+    if (timerController.timer != null) {
+      timerController.timer?.cancel();
+    }
+
+    timerController.timerChange(time: Timer.periodic(
+        const Duration(milliseconds: 1000), (timer) async {
+      debugPrint('--------------------------------------------------------------------------------------${timerController.latLng}');
+      var result = await distanceResult(timerController.latLng!);
+      debugPrint('background : ${result.toString()}');
+      if (result < 0.25) {
+        await Vibration.vibrate(duration: 1500);
+        timerController.timer?.cancel();
+      }
+    }));
+  }
 }
 
 class _MyAppState extends State<MyApp> {
+  final timerController = Get.put(TimerController());
+
   static const MODE_ADD = 0xF1;
   static const MODE_REMOVE = 0xF2;
   static const MODE_NONE = 0xF3;
   int _currentMode = MODE_ADD;
-  Timer? _timer = null;
   Completer<NaverMapController> _controller = Completer();
   List<Marker> _markers = [];
 
   @override
   void initState() {
     super.initState();
-
+    FlutterBackgroundService().invoke('stopService');
   }
 
   @override
@@ -42,7 +123,9 @@ class _MyAppState extends State<MyApp> {
         left: true,
         right: true,
         child: Scaffold(
-          appBar: AppBar(),
+          appBar: AppBar(
+              title: Text('${timerController.distance}m'),
+          ),
           body: Column(
             children: <Widget>[
               _controlPanel(),
@@ -176,7 +259,14 @@ class _MyAppState extends State<MyApp> {
           onMarkerTab: _onMarkerTap,
         );
       }
-      timerSetting(latLng!);
+      timerController.latLngChange(latlng: latLng!);
+      final service = FlutterBackgroundService();
+      var isRunning = await service.isRunning();
+      if (isRunning) {
+        service.invoke("stopService");
+      } else {
+        service.startService();
+      }
       setState(() {});
     }
   }
@@ -202,62 +292,60 @@ class _MyAppState extends State<MyApp> {
           onMarkerTab: _onMarkerTap,
         );
       }
-      timerSetting(latLng);
+      timerController.latLngChange(latlng: latLng);
+      final service = FlutterBackgroundService();
+      var isRunning = await service.isRunning();
+      if (isRunning) {
+        service.invoke("stopService");
+      } else {
+        service.startService();
+      }
       setState(() {});
     }
   }
 
   void _onMarkerTap(Marker? marker, Map<String, int?> iconSize) {
+    final service = FlutterBackgroundService();
     int pos = _markers.indexWhere((m) => m.markerId == marker!.markerId);
     setState(() {
       _markers[pos].captionText = '선택됨';
     });
     if (_currentMode == MODE_REMOVE) {
+      service.invoke("stopService");
       setState(() {
         _markers.removeWhere((m) => m.markerId == marker!.markerId);
       });
     }
   }
 
-  Future<double> distanceResult(LatLng latLng) async {
-    var deviceLocation = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
-    var deviceLongitudeDegree = (deviceLocation.longitude).toInt();
-    var deviceLongitudeMinute = ((deviceLocation.longitude - deviceLongitudeDegree) * 60).toInt();
-    var deviceLongitudeSecond = ((deviceLocation.longitude - deviceLongitudeDegree) * 60 - deviceLongitudeMinute) * 60;
 
-    var deviceLatitudeDegree = (deviceLocation.latitude).toInt();
-    var deviceLatitudeMinute = ((deviceLocation.latitude - deviceLatitudeDegree) * 60).toInt();
-    var deviceLatitudeSecond = ((deviceLocation.latitude - deviceLatitudeDegree) * 60 - deviceLatitudeMinute) * 60;
 
-    var destinationLongitudeDegree = (latLng.longitude).toInt();
-    var destinationLongitudeMinute = ((latLng.longitude - destinationLongitudeDegree) * 60).toInt();
-    var destinationLongitudeSecond = ((latLng.longitude - destinationLongitudeDegree) * 60 - destinationLongitudeMinute) * 60;
 
-    var destinationLatitudeDegree = (latLng.latitude).toInt();
-    var destinationLatitudeMinute = ((latLng.latitude - destinationLatitudeDegree) * 60).toInt();
-    var destinationLatitudeSecond = ((latLng.latitude - destinationLatitudeDegree) * 60 - destinationLatitudeMinute) * 60;
+}
 
-    var longitude = pow(((deviceLongitudeDegree - destinationLongitudeDegree).abs() * 88.9036 + (deviceLongitudeMinute - destinationLongitudeMinute).abs() * 1.4817 + (deviceLongitudeSecond - destinationLongitudeSecond).abs() * 0.0246), 2);
-    var latitude = pow(((deviceLatitudeDegree - destinationLatitudeDegree).abs() * 111.3194 + (deviceLatitudeMinute - destinationLatitudeMinute).abs() * 1.8553 + (deviceLatitudeSecond - destinationLatitudeSecond).abs() * 0.0309), 2);
-    var distance = sqrt(longitude + latitude);
+Future<double> distanceResult(LatLng latLng) async {
+  var deviceLocation = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
-    return distance;
-  }
+  var deviceLongitudeDegree = (deviceLocation.longitude).toInt();
+  var deviceLongitudeMinute = ((deviceLocation.longitude - deviceLongitudeDegree) * 60).toInt();
+  var deviceLongitudeSecond = ((deviceLocation.longitude - deviceLongitudeDegree) * 60 - deviceLongitudeMinute) * 60;
 
-  void timerSetting(LatLng latLng){
-    if(_timer != null){
-      _timer?.cancel();
-    }
-    setState(() {
-      _timer = Timer.periodic(const Duration(milliseconds: 1000), (timer) async {
-        var result = await distanceResult(latLng);
-        debugPrint(result.toString());
-        if(result < 0.25){
-          Vibration.vibrate(duration: 1000);
-          timer.cancel();
-        }
-      });
-    });
-  }
+  var deviceLatitudeDegree = (deviceLocation.latitude).toInt();
+  var deviceLatitudeMinute = ((deviceLocation.latitude - deviceLatitudeDegree) * 60).toInt();
+  var deviceLatitudeSecond = ((deviceLocation.latitude - deviceLatitudeDegree) * 60 - deviceLatitudeMinute) * 60;
+
+  var destinationLongitudeDegree = (latLng.longitude).toInt();
+  var destinationLongitudeMinute = ((latLng.longitude - destinationLongitudeDegree) * 60).toInt();
+  var destinationLongitudeSecond = ((latLng.longitude - destinationLongitudeDegree) * 60 - destinationLongitudeMinute) * 60;
+
+  var destinationLatitudeDegree = (latLng.latitude).toInt();
+  var destinationLatitudeMinute = ((latLng.latitude - destinationLatitudeDegree) * 60).toInt();
+  var destinationLatitudeSecond = ((latLng.latitude - destinationLatitudeDegree) * 60 - destinationLatitudeMinute) * 60;
+
+  var longitude = pow(((deviceLongitudeDegree - destinationLongitudeDegree).abs() * 88.9036 + (deviceLongitudeMinute - destinationLongitudeMinute).abs() * 1.4817 + (deviceLongitudeSecond - destinationLongitudeSecond).abs() * 0.0246), 2);
+  var latitude = pow(((deviceLatitudeDegree - destinationLatitudeDegree).abs() * 111.3194 + (deviceLatitudeMinute - destinationLatitudeMinute).abs() * 1.8553 + (deviceLatitudeSecond - destinationLatitudeSecond).abs() * 0.0309), 2);
+  var distance = sqrt(longitude + latitude);
+
+  return distance;
 }
