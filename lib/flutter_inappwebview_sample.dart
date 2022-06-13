@@ -38,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: InAppWebView(
-        initialUrlRequest: URLRequest(url: Uri.parse("http://10.0.2.2:3000/")),
+        initialUrlRequest: URLRequest(url: Uri.parse('http://10.0.2.2:3000/')),
         onWebViewCreated: (controller) {
           controller.addJavaScriptHandler(handlerName: 'Sample', callback: (args) {
             print("호출!");

@@ -96,6 +96,18 @@ dependencies:
   #기기 정보
   device_info_plus: ^3.2.4
 
+  #영상 출력 - 기본적인 거만 지원 유튜브처럼 하려면 추가 패키지를 쓰거나 UI 직접 제작
+  video_player: ^2.4.4
+
+  #실시간 음성 및 영상 통화 - agora 사용해야함(유료)
+  agora_rtc_engine: ^5.2.0
+
+  #https://pub.dev/packages/rtmp_publisher 여기는 무료로 rtmp를 사용할 수 있나봄
+
+  #실시간 음성 및 영상 통화 - 무료
+  flutter_webrtc: ^0.8.9
+
+  #Flutter와 Mux를 이용한 서버리스 라이브 스트리밍 앱  https://blog.flutterflow.io/flutter-mux-live-streaming/ 이건 돈땜시 못함
 
 dev_dependencies:
   flutter_test:

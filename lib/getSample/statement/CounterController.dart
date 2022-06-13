@@ -21,7 +21,7 @@ class ReactiveController extends GetxController {
 
   get sum => count0.value + count1.value;
 
-  change({required int id, required String name}) {
+  void change({required int id, required String name}) {
     user.update((val) {
       val?.name = name;
       val?.id = id;
