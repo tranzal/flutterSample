@@ -51,21 +51,29 @@ class _MyAppState extends State<MyApp> {
           onPressed: () async {
             var permission = await Permission.sms.status;
             if (permission.isGranted) {
+              //
               final messages = await _query.querySms(
                   kinds: [SmsQueryKind.inbox, SmsQueryKind.sent,SmsQueryKind.draft],
-                  address: '01087481339',// 특정 번호를 입력하면 해당 번호 목록만 받아오기 가능
+                  // address: '01087481339',// 특정 번호를 입력하면 해당 번호 목록만 받아오기 가능
                   // address: '+254712345789',
                   count: 1
               );
-              debugPrint('sms inbox messages: ${messages.length}');
-              for(SmsMessage tempSms in messages){
-                var index = tempSms.body?.indexOf('CertNo');
-                var certNo = tempSms.body?.substring(index! + 7, index + 13);
-                debugPrint(certNo);
 
-                await FlutterClipboard.copy(certNo!);
-              }
-              setState(() => _messages = messages);
+              debugPrint('sms inbox messages: ${messages.length}');
+              // for(SmsMessage tempSms in messages){
+              //   //여기에 뽑을 방법 작성
+              //   var index = tempSms.body?.indexOf('CertNo');
+              //   var certNo = tempSms.body?.substring(index! + 7, index + 13);
+              //   debugPrint(certNo);
+              //
+              //   await FlutterClipboard.copy(certNo!);
+              // }
+
+              // 전체목록 가져와서 최신 문자부터 뿌리기
+              final test = await _query.getAllSms;
+              test.sort((a, b) => b.date.toString().compareTo(a.date.toString()),);
+
+              setState(() => _messages = test);
             } else {
               await Permission.sms.request();
             }
