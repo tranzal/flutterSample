@@ -56,7 +56,7 @@ class _MyAppState extends State<MyApp> {
                   kinds: [SmsQueryKind.inbox, SmsQueryKind.sent,SmsQueryKind.draft],
                   // address: '01087481339',// 특정 번호를 입력하면 해당 번호 목록만 받아오기 가능
                   // address: '+254712345789',
-                  count: 1
+                  // count: 1
               );
 
               debugPrint('sms inbox messages: ${messages.length}');

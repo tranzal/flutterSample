@@ -1,17 +1,31 @@
+import 'dart:async';
+
+import 'package:blog/socketMessage/controller/socket_stream_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:socket_io_client/socket_io_client.dart' as io;
+StreamSocket streamSocket = StreamSocket();
 
 void main() {
   runApp(const MyApp());
-  var socket = IO.io('http://localhost:3500');
+  connectAndListen();
+}
+
+void connectAndListen(){
+  var socket = io.io('http://10.0.2.2:3500/some',
+      io.OptionBuilder()
+          .setTransports(['websocket']).build());
   socket.onConnect((_) {
     print('connect');
     socket.emit('msg', 'test');
   });
-  socket.on('event', (data) => print(data));
+
+  socket.on('fromServer', (data) => print(data));
+
+  //When an event recieved from server, data is added to the stream
+  socket.on('event', (data) => streamSocket.addResponse);
   socket.onDisconnect((_) => print('disconnect'));
-  socket.on('fromServer', (_) => print(_));
+
 }
 
 class MyApp extends StatelessWidget {
@@ -38,13 +52,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,25 +60,17 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      body: StreamBuilder(
+          stream: streamSocket.getResponse,
+        builder: (context, snapshot) {
+          return Container(
+            child: Text(snapshot.data.toString()),
+          );
+        },
       ),
     );
   }
+
+
 }
+
