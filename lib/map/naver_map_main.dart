@@ -22,37 +22,7 @@ void main() async {
   runApp(MyApp());
 }
 
-Future<void> initializeService() async {
-  final service = FlutterBackgroundService();
-  await service.configure(
-    androidConfiguration: AndroidConfiguration(
-      // this will executed when app is in foreground or background in separated isolate
-      onStart: MyApp().timerSetting,
 
-      // auto start service
-      autoStart: false,
-      isForegroundMode: true,
-    ),
-    iosConfiguration: IosConfiguration(
-      // auto start service
-      autoStart: false,
-
-      // this will executed when app is in foreground in separated isolate
-      onForeground: MyApp().timerSetting,
-
-      // you have to enable background fetch capability on xcode project
-      onBackground: onIosBackground,
-    ),
-  );
-  await service.startService();
-}
-
-bool onIosBackground(ServiceInstance service) {
-  WidgetsFlutterBinding.ensureInitialized();
-  print('FLUTTER BACKGROUND FETCH');
-
-  return true;
-}
 
 
 
