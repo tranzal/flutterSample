@@ -17,21 +17,14 @@ import 'package:vibration/vibration.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeService();
-
   runApp(MyApp());
 }
-
-
-
-
 
 class MyApp extends StatefulWidget {
   final timerController = Get.put(TimerController());
 
   @override
   State<MyApp> createState() => _MyAppState();
-
 
   void timerSetting(ServiceInstance service) {
     DartPluginRegistrant.ensureInitialized();
