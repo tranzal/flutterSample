@@ -14,6 +14,8 @@ dependencies:
 
   cupertino_icons: ^1.0.2
   flutter_local_notifications: ^9.4.0
+
+  #상태관리
   get: ^4.6.1
   provider: ^6.0.2
 
@@ -110,6 +112,9 @@ dependencies:
   #소켓 통신
   socket_io_client: ^1.0.2
   socket_io: ^1.0.1
+
+  #NFC 읽는거
+  nfc_manager: ^3.1.1
 
   #Flutter와 Mux를 이용한 서버리스 라이브 스트리밍 앱  https://blog.flutterflow.io/flutter-mux-live-streaming/ 이건 돈땜시 못함
 
