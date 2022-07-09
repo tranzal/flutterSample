@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
+//drawer확인은 scaffold에서 ondrawer로 열림 값을 받을 수 있음
 void main() {
   runApp(const MyApp());
 }
