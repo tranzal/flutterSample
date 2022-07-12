@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
+//인앱 웹뷰에서 intent처리시 화면도 이동하고 앱도 켜지는 현상이 발생함
 void main() {
   runApp(const MyApp());
   WidgetsFlutterBinding.ensureInitialized();
