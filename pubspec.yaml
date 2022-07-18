@@ -116,6 +116,9 @@ dependencies:
   #NFC 읽는거
   nfc_manager: ^3.1.1
 
+  #앱 버전확인
+  new_version: ^0.3.1
+
   #Flutter와 Mux를 이용한 서버리스 라이브 스트리밍 앱  https://blog.flutterflow.io/flutter-mux-live-streaming/ 이건 돈땜시 못함
 
 dev_dependencies:
