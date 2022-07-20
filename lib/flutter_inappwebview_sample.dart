@@ -35,10 +35,23 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  //옵션을 선언할 수 있다.
+  final InAppWebViewGroupOptions _inAppWebViewOptions = InAppWebViewGroupOptions(
+    crossPlatform: InAppWebViewOptions(
+      clearCache: true, // 앱을 켤 때마다 캐시 삭제.
+    ),
+    ios: IOSInAppWebViewOptions(
+
+    ),
+    android: AndroidInAppWebViewOptions(
+
+    ),
+  );
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: InAppWebView(
+        initialOptions: _inAppWebViewOptions,
         initialUrlRequest: URLRequest(url: Uri.parse('http://10.0.2.2:3000/')),
         onWebViewCreated: (controller) {
           controller.addJavaScriptHandler(handlerName: 'Sample', callback: (args) {
