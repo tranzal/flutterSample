@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 //인앱 웹뷰에서 intent처리시 화면도 이동하고 앱도 켜지는 현상이 발생함 해당 문제는 PG결제시에 발생하는 것으로 보임
+//왜인지 모르겠지만 정상 작동함 버전 문제인것으로 보임
 void main() {
   runApp(const MyApp());
   WidgetsFlutterBinding.ensureInitialized();
