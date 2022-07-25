@@ -38,7 +38,7 @@ dependencies:
   syncfusion_flutter_calendar: ^20.1.51
   googleapis: ^8.1.0
   googleapis_auth: ^1.3.0
-  
+
   #날짜
   intl: ^0.17.0
 
@@ -124,6 +124,9 @@ dependencies:
 
   #yaml파일 값 가져오기
   pubspec_yaml: ^3.1.0
+
+  #google analytics
+  firebase_analytics: ^9.2.1
 
   #Flutter와 Mux를 이용한 서버리스 라이브 스트리밍 앱  https://blog.flutterflow.io/flutter-mux-live-streaming/ 이건 돈땜시 못함
 
