@@ -122,6 +122,9 @@ dependencies:
   #앱 버전확인
   new_version: ^0.3.1
 
+  #yaml파일 값 가져오기
+  pubspec_yaml: ^3.1.0
+
   #Flutter와 Mux를 이용한 서버리스 라이브 스트리밍 앱  https://blog.flutterflow.io/flutter-mux-live-streaming/ 이건 돈땜시 못함
 
 dev_dependencies:
