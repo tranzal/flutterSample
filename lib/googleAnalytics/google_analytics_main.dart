@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
 
   static FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   static FirebaseAnalyticsObserver observer =
-  FirebaseAnalyticsObserver(analytics: analytics);
+      FirebaseAnalyticsObserver(analytics: analytics);
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,9 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       debugShowCheckedModeBanner: false,
-      navigatorObservers: <NavigatorObserver>[observer],
+      navigatorObservers: <NavigatorObserver>[
+        observer,
+      ],
       home: MyHomePage(
         title: 'Firebase Analytics Demo',
         analytics: analytics,
@@ -66,9 +68,10 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  Future<void> _sendAnalyticsEvent() async {
+  Future<void> _sendAnalyticsEvent1() async {
+
     await widget.analytics.logEvent(
-      name: '이벤트 샘플',
+      name: 'send_button_click1',
       parameters: <String, dynamic>{
         'string': 'string',
         'int': 42,
@@ -80,9 +83,24 @@ class _MyHomePageState extends State<MyHomePage> {
         'items': [itemCreator()]
       },
     );
-    setMessage('logEvent succeeded');
+    setMessage('logEvent1 succeeded');
   }
-
+  Future<void> _sendAnalyticsEvent2() async {
+    await widget.analytics.logEvent(
+      name: 'send_button_click2',
+      parameters: <String, dynamic>{
+        'string': 'string',
+        'int': 42,
+        'long': 12345678910,
+        'double': 42.0,
+        // Only strings and numbers (ints & doubles) are supported for GA custom event parameters:
+        // https://developers.google.com/analytics/devguides/collection/analyticsjs/custom-dims-mets#overview
+        'bool': true.toString(),
+        'items': [itemCreator()]
+      },
+    );
+    setMessage('logEvent2 succeeded');
+  }
   Future<void> _testSetUserId() async {
     await widget.analytics.setUserId(id: 'some-user');
     setMessage('setUserId succeeded');
@@ -114,7 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _testAppInstanceId() async {
-    String? id = await widget.analytics.appInstanceId;
+    var id = await widget.analytics.appInstanceId;
     if (id != null) {
       setMessage('appInstanceId succeeded: $id');
     } else {
@@ -289,39 +307,43 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: <Widget>[
-          MaterialButton(
-            onPressed: _sendAnalyticsEvent,
-            child: const Text('Test logEvent'),
+          ElevatedButton(
+            onPressed: _sendAnalyticsEvent1,
+            child: const Text('Test logEvent1'),
           ),
-          MaterialButton(
+          ElevatedButton(
+            onPressed: _sendAnalyticsEvent2,
+            child: const Text('Test logEvent2'),
+          ),
+          ElevatedButton(
             onPressed: _testAllEventTypes,
             child: const Text('Test standard event types'),
           ),
-          MaterialButton(
+          ElevatedButton(
             onPressed: _testSetUserId,
             child: const Text('Test setUserId'),
           ),
-          MaterialButton(
+          ElevatedButton(
             onPressed: _testSetCurrentScreen,
             child: const Text('Test setCurrentScreen'),
           ),
-          MaterialButton(
+          ElevatedButton(
             onPressed: _testSetAnalyticsCollectionEnabled,
             child: const Text('Test setAnalyticsCollectionEnabled'),
           ),
-          MaterialButton(
+          ElevatedButton(
             onPressed: _testSetSessionTimeoutDuration,
             child: const Text('Test setSessionTimeoutDuration'),
           ),
-          MaterialButton(
+          ElevatedButton(
             onPressed: _testSetUserProperty,
             child: const Text('Test setUserProperty'),
           ),
-          MaterialButton(
+          ElevatedButton(
             onPressed: _testAppInstanceId,
             child: const Text('Test appInstanceId'),
           ),
-          MaterialButton(
+          ElevatedButton(
             onPressed: _testResetAnalyticsData,
             child: const Text('Test resetAnalyticsData'),
           ),
